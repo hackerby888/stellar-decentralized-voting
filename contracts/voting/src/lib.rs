@@ -5,6 +5,7 @@ use soroban_sdk::{
 };
 
 const ADMIN: Symbol = symbol_short!("admin");
+const ONE_MONTH_LEDGERS: u32 = (30 * 24 * 60 * 60) / 5;
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
@@ -35,6 +36,7 @@ pub struct Voter {
 
 pub fn get_candidates(env: &Env) -> Map<u64, Candidate> {
     let candidate_key = Symbol::new(&env, "candidates");
+    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage()
         .instance()
         .get(&candidate_key)
@@ -43,11 +45,13 @@ pub fn get_candidates(env: &Env) -> Map<u64, Candidate> {
 
 pub fn set_candidates(env: &Env, candidates: &Map<u64, Candidate>) {
     let candidate_key = Symbol::new(&env, "candidates");
+    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage().instance().set(&candidate_key, candidates);
 }
 
 pub fn get_authorized_voters(env: &Env) -> Map<Address, Voter> {
     let voters_key = Symbol::new(&env, "voters");
+    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage()
         .instance()
         .get(&voters_key)
@@ -56,14 +60,17 @@ pub fn get_authorized_voters(env: &Env) -> Map<Address, Voter> {
 
 pub fn set_authorized_voters(env: &Env, voters: &Map<Address, Voter>) {
     let voters_key = Symbol::new(&env, "voters");
+    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage().instance().set(&voters_key, voters);
 }
 
 pub fn get_admin(env: &Env) -> Address {
+    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage().instance().get(&ADMIN).unwrap()
 }
 
 pub fn set_admin(env: &Env, admin: &Address) {
+    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage().instance().set(&ADMIN, admin);
 }
 
@@ -97,6 +104,7 @@ pub fn get_candidate(env: &Env, id: u64) -> Candidate {
 
 pub fn get_is_voting_active(env: &Env) -> bool {
     let candidate_key = Symbol::new(&env, "is_voting_active");
+    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage()
         .instance()
         .get(&candidate_key)
@@ -105,6 +113,7 @@ pub fn get_is_voting_active(env: &Env) -> bool {
 
 pub fn set_is_voting_active(env: &Env, is_voting_active: bool) {
     let candidate_key = Symbol::new(&env, "is_voting_active");
+    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage()
         .instance()
         .set(&candidate_key, &is_voting_active);
@@ -136,7 +145,7 @@ impl VotingContract {
 
         id
     }
-    
+
     pub fn get_candidates_list(env: &Env) -> Vec<Candidate> {
         let candidates = get_candidates(&env);
         let mut result = Vec::new(&env);
@@ -215,7 +224,7 @@ impl VotingContract {
             panic_with_error!(&env, Error::VotingEnded);
         }
     }
-    
+
     // we use this function to get the winner(s) of the election in case of a tie between candidates with the same number of votes
     pub fn get_winners(env: &Env) -> Vec<Candidate> {
         let candidates = get_candidates(&env);
