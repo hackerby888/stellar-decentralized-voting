@@ -136,6 +136,19 @@ impl VotingContract {
 
         id
     }
+    
+    pub fn get_candidates_list(env: &Env) -> Vec<Candidate> {
+        let candidates = get_candidates(&env);
+        let mut result = Vec::new(&env);
+        for (_, candidate) in candidates.iter() {
+            result.push_back(candidate);
+        }
+        result
+    }
+
+    pub fn get_candidate(env: &Env, id: u64) -> Candidate {
+        get_candidate(&env, id)
+    }
 
     pub fn authorize_voter(env: &Env, voter: Address) {
         get_admin(&env).require_auth();
@@ -175,19 +188,6 @@ impl VotingContract {
         env.events().publish((voter, symbol_short!("vote")), id);
     }
 
-    pub fn get_candidates_list(env: &Env) -> Vec<Candidate> {
-        let candidates = get_candidates(&env);
-        let mut result = Vec::new(&env);
-        for (_, candidate) in candidates.iter() {
-            result.push_back(candidate);
-        }
-        result
-    }
-
-    pub fn get_candidate(env: &Env, id: u64) -> Candidate {
-        get_candidate(&env, id)
-    }
-
     pub fn get_total_votes(env: &Env) -> u32 {
         let candidates = get_candidates(&env);
         let mut total_votes = 0;
@@ -215,7 +215,7 @@ impl VotingContract {
             panic_with_error!(&env, Error::VotingEnded);
         }
     }
-
+    
     // we use this function to get the winner(s) of the election in case of a tie between candidates with the same number of votes
     pub fn get_winners(env: &Env) -> Vec<Candidate> {
         let candidates = get_candidates(&env);
