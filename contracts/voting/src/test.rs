@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use super::*;
-use soroban_sdk::{testutils::Address as _, vec, Env};
+use soroban_sdk::{testutils::{Address as _, Events}, vec, Env, IntoVal};
 
 #[test]
 fn test_authorized_voters() {
@@ -45,10 +45,13 @@ fn test_vote() {
     );
 
     client.vote(&voter_1, &candidate_id);
+    assert_eq!(env.events().all(), vec![&env, (contract_id.clone(), (symbol_short!("vote"), voter_1.clone()).into_val(&env), candidate_id.into_val(&env))]);
+
     assert!(client.get_voter(&voter_1).is_voted);
     assert_eq!(client.get_candidate(&candidate_id).votes, 1);
 
     client.vote(&voter_2, &candidate_id);
+    assert_eq!(env.events().all(), vec![&env, (contract_id.clone(), (symbol_short!("vote"), voter_2.clone()).into_val(&env), candidate_id.into_val(&env))]);
     assert!(client.get_voter(&voter_2).is_voted);
     assert_eq!(client.get_candidate(&candidate_id).votes, 2);
 

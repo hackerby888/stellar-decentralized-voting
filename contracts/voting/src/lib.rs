@@ -210,7 +210,7 @@ impl VotingContract {
         increase_votes(env, id);
         set_voted_status_voter(&env, voter.clone());
 
-        env.events().publish((voter, symbol_short!("vote")), id);
+        env.events().publish((symbol_short!("vote"), voter), id);
     }
 
     pub fn get_total_votes(env: &Env) -> u32 {
