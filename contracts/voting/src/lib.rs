@@ -36,7 +36,9 @@ pub struct Voter {
 
 pub fn get_candidates(env: &Env) -> Map<u64, Candidate> {
     let candidate_key = Symbol::new(&env, "candidates");
-    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
+    env.storage()
+        .instance()
+        .extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage()
         .instance()
         .get(&candidate_key)
@@ -45,13 +47,17 @@ pub fn get_candidates(env: &Env) -> Map<u64, Candidate> {
 
 pub fn set_candidates(env: &Env, candidates: &Map<u64, Candidate>) {
     let candidate_key = Symbol::new(&env, "candidates");
-    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
+    env.storage()
+        .instance()
+        .extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage().instance().set(&candidate_key, candidates);
 }
 
 pub fn get_authorized_voters(env: &Env) -> Map<Address, Voter> {
     let voters_key = Symbol::new(&env, "voters");
-    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
+    env.storage()
+        .instance()
+        .extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage()
         .instance()
         .get(&voters_key)
@@ -60,17 +66,23 @@ pub fn get_authorized_voters(env: &Env) -> Map<Address, Voter> {
 
 pub fn set_authorized_voters(env: &Env, voters: &Map<Address, Voter>) {
     let voters_key = Symbol::new(&env, "voters");
-    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
+    env.storage()
+        .instance()
+        .extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage().instance().set(&voters_key, voters);
 }
 
 pub fn get_admin(env: &Env) -> Address {
-    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
+    env.storage()
+        .instance()
+        .extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage().instance().get(&ADMIN).unwrap()
 }
 
 pub fn set_admin(env: &Env, admin: &Address) {
-    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
+    env.storage()
+        .instance()
+        .extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage().instance().set(&ADMIN, admin);
 }
 
@@ -104,7 +116,9 @@ pub fn get_candidate(env: &Env, id: u64) -> Candidate {
 
 pub fn get_is_voting_active(env: &Env) -> bool {
     let candidate_key = Symbol::new(&env, "is_voting_active");
-    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
+    env.storage()
+        .instance()
+        .extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage()
         .instance()
         .get(&candidate_key)
@@ -113,7 +127,9 @@ pub fn get_is_voting_active(env: &Env) -> bool {
 
 pub fn set_is_voting_active(env: &Env, is_voting_active: bool) {
     let candidate_key = Symbol::new(&env, "is_voting_active");
-    env.storage().instance().extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
+    env.storage()
+        .instance()
+        .extend_ttl(ONE_MONTH_LEDGERS, ONE_MONTH_LEDGERS);
     env.storage()
         .instance()
         .set(&candidate_key, &is_voting_active);
@@ -229,22 +245,14 @@ impl VotingContract {
     pub fn get_winners(env: &Env) -> Vec<Candidate> {
         let candidates = get_candidates(&env);
         let mut winners: Vec<Candidate> = Vec::new(&env);
-        let mut winner = Candidate {
-            id: 0,
-            name: Bytes::new(&env),
-            party: Bytes::new(&env),
-            avatar: Bytes::new(&env),
-            votes: 0,
-        };
+        let mut highest_vote = 0;
 
         for (_, candidate) in candidates.iter() {
-            if candidate.votes > winner.votes {
-                winner = candidate;
-            }
-        }
-
-        for (_, candidate) in candidates.iter() {
-            if candidate.votes == winner.votes {
+            if candidate.votes > highest_vote {
+                highest_vote = candidate.votes;
+                winners = Vec::new(&env);
+                winners.push_back(candidate);
+            } else if candidate.votes == highest_vote {
                 winners.push_back(candidate);
             }
         }
